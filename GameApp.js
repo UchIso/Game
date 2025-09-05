@@ -1,84 +1,97 @@
 
 const Character = document.getElementById("Character")
-Character.textContent = "100%"
-
+Character.textContent = 100
 let cX=0
 let cY=0
-function MoveFunc(mX,mY) {
-    cX += mX
-    cY += mY
-    Character.style.transform = `translate(${cX}px, ${cY}px)`
-    // console.log(cX,cY);
-}
-MoveFunc(20,20)
-console.log(cX,cY);
+const MoveSpeed = -10
 
-const Area = document.addEventListener("keypress",AreaFunc)
-function AreaFunc(Event){
- 
-    const MoveSpeed = -10
+const Keys = {
+    w: false,
+    s: false,
+    a: false,
+    d: false,
+}
+
+document.addEventListener("keydown",Event => {
     
-    switch(Event.key){
+    let EventKey = Event.key
 
-        case "w":
-            console.log(Event.key);
-            MoveFunc(0 , MoveSpeed)
-            break
-        case "s":
-            console.log(Event.key);
-            MoveFunc(0 , -MoveSpeed)
-            break
-        case "a":
-            console.log(Event.key);
-            MoveFunc(MoveSpeed , 0)
-            break
-        case "d":
-            console.log(Event.key);
-            MoveFunc(-MoveSpeed , 0)
-            break
-
-        case "W":
-            console.log(Event.key);
-            MoveFunc(0 , MoveSpeed*1.5)
-            break
-
-        case "S":
-            console.log(Event.key);
-            MoveFunc(0 , -MoveSpeed*1.5)
-            break
-
-        case "A":
-            console.log(Event.key);
-            MoveFunc(MoveSpeed*1.5 , 0)
-            break
-
-        case "D":
-            console.log(Event.key);
-            MoveFunc(-MoveSpeed*1.5 , 0)
-            break
+    if(Keys.hasOwnProperty(EventKey)) {
+        Keys[EventKey] = true
+        Event.preventDefault()
     }
-    // console.log("------------------");
+})
+
+document.addEventListener("keyup",Event => {
+    
+    let EventKey = Event.key
+
+    if(Keys.hasOwnProperty(EventKey)){
+        Keys[EventKey] = false
+    }
+})
+
+function UpdateCharPos(){
+    Character.style.left = cX + "px"
+    Character.style.top = cY + "px"
 }
 
-
-const Spike = document.getElementById("Spike")
-
-document.addEventListener("keyup",Damege)
-function Damege(){
-    let SpikeC = Spike.getBoundingClientRect()
-    console.log(SpikeC.top , "Spike-T");
-    console.log(SpikeC.bottom , "Spike-B");
-    console.log(SpikeC.left , "Spike-L");
-    console.log(SpikeC.right , "Spike-R");
-    console.log("------------------")
-    let CharacterC = Character.getBoundingClientRect()
-    console.log(CharacterC.top , "Char-T");
-    console.log(CharacterC.bottom , "Char-B");
-    console.log(CharacterC.left , "Char-L");
-    console.log(CharacterC.right , "Char-R");
-
-    if(SpikeC.top <= CharacterC.bottom || SpikeC.bottom >= CharacterC.top || SpikeC.left >= CharacterC.right || SpikeC.right <= CharacterC.left){
-        console.log("AH");
+document.addEventListener("keydown",BlockFunc)
+function BlockFunc(Event){
+    console.log(Event);
+    if(Event.key === "Shift"){
+        Event.preventDefault()
+        Event.isTrusted = false
+        for(let key in Keys){
+            Keys[key] = false
+        }
+        return false
     }
-} 
-Damege()
+    // if(Event.ctrlKey || Event.metaKey){
+        // Event.preventDefault()
+        // Event.isTrusted = false
+        // return false
+    // }
+}
+
+function GameLoop(){
+
+    if(Keys.w) cY += MoveSpeed
+    if(Keys.s) cY -= MoveSpeed
+    if(Keys.a) cX += MoveSpeed
+    if(Keys.d) cX -= MoveSpeed
+    
+    UpdateCharPos()
+    requestAnimationFrame(GameLoop)
+}
+
+GameLoop()
+
+document.addEventListener("keydown",ChrCordinate)
+document.addEventListener("keyup",ChrCordinate)
+function ChrCordinate(){   
+    let CharCor = Character.getBoundingClientRect()
+    const CharacterPos={
+        TOP: CharCor.top,
+        BOTTOM: CharCor.bottom,
+        LEFT: CharCor.left,
+        RIGHT: CharCor.right,
+    }
+    console.log(CharacterPos);
+    console.log(Keys);
+    let center = getCenterCoordinates(Character)
+    console.log(center);
+
+    console.log("------------------------------------");
+}
+
+function getCenterCoordinates(element) {
+    const rect = element.getBoundingClientRect();
+    
+    return {
+        centerX: rect.left + (rect.width / 2),
+        centerY: rect.top + (rect.height / 2),
+        pageCenterX: rect.left + window.scrollX + (rect.width / 2),
+        pageCenterY: rect.top + window.scrollY + (rect.height / 2)
+    };
+}
