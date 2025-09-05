@@ -1,0 +1,20 @@
+#Character{
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    transition: transform 0.1s ease; /* Daha smooth hareket için */
+}
+#Spike{
+    width: 25px;
+    height: 25px;
+    background-color: black;
+    top: 230px;
+    left: 550px;
+    position: absolute;
+}
