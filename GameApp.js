@@ -11,7 +11,6 @@ const Keys = {
     s: false,
     a: false,
     d: false,
-     
 }
 
 document.addEventListener("keydown",Event => {
@@ -74,48 +73,80 @@ if(RunSpeed < MoveSpeed){
 
 }
     
+Damage()
 UpdateCharPos()
 requestAnimationFrame(GameLoop)
-Damage()
 }
 
-const Spike = document.getElementById("Spike")
+let Cooldown = false
 
+const Spikes = [
+        { id: 'Spike1', x: 550, y: 100, width: 50, height: 50},
+        { id: 'Spike2', x: 430, y: 520, width: 50, height: 50},
+        { id: 'Spike3', x: 200, y: 305, width: 50, height: 50},
+        { id: 'Spike4', x: 650, y: 650, width: 50, height: 50},
+        { id: 'Spike5', x: 500, y: 505, width: 50, height: 50},
+        { id: 'Spike6', x: 600, y: 350, width: 50, height: 50},
+]
+
+Spikes.forEach(Spike => {
+            const SpikeElement = document.createElement('div');
+            SpikeElement.id = Spike.id;
+            SpikeElement.className = `Spike`;
+            SpikeElement.style.left = Spike.x + 'px';
+            SpikeElement.style.top = Spike.y + 'px';
+            SpikeElement.style.width = Spike.width + "px"
+            SpikeElement.style.height = Spike.height + "px"
+            
+            SpikeElement.textContent = Spike.id;
+            document.body.appendChild(SpikeElement);
+})
 
 function Damage(){
     
     let CharHP = Number(Character.textContent)
-    let SpikeCor = Spike.getBoundingClientRect()
     let CharCor = Character.getBoundingClientRect()
     
-    if(CharCor.bottom >= SpikeCor.top && CharCor.top <= SpikeCor.bottom && CharCor.right >= SpikeCor.left && CharCor.left <= SpikeCor.right){
-        Character.textContent = CharHP - 5
-        if(CharCor.bottom < SpikeCor.top){
-            Character.style.top = (cY-10) + "px"
-            cY -= 10
-            console.log(CharCor.top);
-            console.log(Character.style.top);
-        }
-        if(CharCor.right >= SpikeCor.left){
-            Character.style.left = (cX-10) + "px"
-            cX -= 10
-            console.log(CharCor.left);
-            console.log(Character.style.left);
-        }
-        if(CharCor.top = SpikeCor.bottom){
-            Character.style.top = (cY+20) + "px"
-            cY += 20
-            console.log(CharCor.top);
-            console.log(Character.style.top);
-        }
-        // if(CharCor.right >= SpikeCor.left){
-        //     Character.style.left = (cX-10) + "px"
-        //     cX -= 10
-        //     console.log(CharCor.left);
-        //     console.log(Character.style.left);
-        // }
+    Spikes.forEach(Spike => {
+        
+    const SpikeCor = {
+        left: Spike.x,
+        right: Spike.x + Spike.width,
+        top: Spike.y,
+        bottom: Spike.y + Spike.height
     }
+
+    const Collision =(
+        CharCor.bottom >= SpikeCor.top&&
+        CharCor.top <= SpikeCor.bottom&& 
+        CharCor.left <= SpikeCor.right&&
+        CharCor.right >= SpikeCor.left
+    )   
     
+    if(Collision && !Cooldown){
+            
+        Character.textContent = CharHP - 5
+
+        Cooldown = true
+        setTimeout(()=> Cooldown = false , 500)
+
+        let SpikeElement = document.getElementById(Spike.id)
+            
+        const CharCenter = getCenterCoordinates(Character)
+        const SpikeCenter = getCenterCoordinates(SpikeElement)
+
+        const HalfDX = CharCenter.centerX - SpikeCenter.centerX
+        const HalfDY = CharCenter.centerY - SpikeCenter.centerY
+
+        const Length = Math.sqrt(HalfDX*HalfDX + HalfDY*HalfDY)
+        const NormalDX = HalfDX / Length
+        const NormalDY = HalfDY / Length
+        
+        cX += NormalDX * 30
+        cY += NormalDY * 30
+    }
+})
+        
     if (Character.textContent === "0") {
         document.body.style.background = "black"
     }
@@ -126,10 +157,10 @@ document.addEventListener("keyup",Damage)
 
 GameLoop()
 
-document.addEventListener("keydown",ChrCordinate)
-document.addEventListener("keyup",ChrCordinate)
+document.addEventListener("keydown",Cordinate)
+document.addEventListener("keyup",Cordinate)
 
-function ChrCordinate(){   
+function Cordinate(){   
 
     let CharCor = Character.getBoundingClientRect()
     const CharacterPos={
@@ -145,13 +176,21 @@ function ChrCordinate(){
     
     // console.log("----------------------------------------------------------------------------------------------------------------------");
     
-    let SpikeCor = Spike.getBoundingClientRect()
-    const SpikePos={
-        TOP: SpikeCor.top,
-        BOTTOM: SpikeCor.bottom,
-        LEFT: SpikeCor.left,
-        RIGHT: SpikeCor.right,
-    }
+    Spikes.forEach(Spike => {
+
+        const SpikeCor = {
+            left: Spike.x,
+            right: Spike.x + Spike.width,
+            top: Spike.y,
+            bottom: Spike.y + Spike.height
+        } 
+        const SpikePos={
+            TOP: SpikeCor.top,
+            BOTTOM: SpikeCor.bottom,
+            LEFT: SpikeCor.left,
+            RIGHT: SpikeCor.right,
+        }
+    })
     
     // console.log(SpikePos,"Spike");
     // let centerS = getCenterCoordinates(Spike)
@@ -172,7 +211,5 @@ function getCenterCoordinates(element) {
     return {
         centerX: rect.left + (rect.width / 2),
         centerY: rect.top + (rect.height / 2),
-        pageCenterX: rect.left + window.scrollX + (rect.width / 2),
-        pageCenterY: rect.top + window.scrollY + (rect.height / 2)
     };
 }
