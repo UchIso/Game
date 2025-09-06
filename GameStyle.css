@@ -14,7 +14,25 @@
     width: 25px;
     height: 25px;
     background-color: black;
+    position: absolute;
+}
+.Spike1{
+    top: 530px;
+    left: 750px;
+}
+.Spike2{
     top: 230px;
     left: 550px;
-    position: absolute;
+}
+.Spike3{
+    top: 730px;
+    left: 560px;
+}
+.Spike4{
+    top: 490px;
+    left: 950px;
+}
+.Spike5{
+    top: 530px;
+    left: 550px;
 }
