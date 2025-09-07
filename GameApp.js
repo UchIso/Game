@@ -94,27 +94,32 @@ function DashFunc(Event){
 
 function GameLoop(){
     
+    let Moved = false
 // if(MoveSpeed == RunSpeed){
 
     if(Keys.KeyW){
-        cY += MoveSpeed
-        if(WallFunc()) cY -= MoveSpeed
-        // UpdateCharPos()
+        if(!ChekCollisionY(cY + MoveSpeed)){
+            cY += MoveSpeed
+            Moved = true
+        }
     } 
     if(Keys.KeyS){
-        cY -= MoveSpeed
-        if(WallFunc()) cY += MoveSpeed
-        // UpdateCharPos()
+        if(!ChekCollisionY(cY - MoveSpeed)){
+            cY -= MoveSpeed
+            Moved = true
+        }
     }
     if(Keys.KeyA){
-        cX += MoveSpeed
-        if(WallFunc()) cX -= MoveSpeed
-        // UpdateCharPos()
+        if(!ChekCollisionX(cX + MoveSpeed)){
+            cX += MoveSpeed
+            Moved = true
+        }
     }
     if(Keys.KeyD){
-        cX -= MoveSpeed
-        if(WallFunc()) cX += MoveSpeed
-        // UpdateCharPos()
+        if(!ChekCollisionX(cX - MoveSpeed)){
+            cX -= MoveSpeed
+            Moved = true
+        }
     }
     if(Keys.Space){ 
         cY += JumpPower
@@ -136,7 +141,6 @@ function GameLoop(){
 // }
     
 Damage()
-WallFunc()
 UpdateCharPos()
 requestAnimationFrame(GameLoop)
 }
@@ -175,21 +179,22 @@ Walls.forEach(Wall => {
     document.body.appendChild(WallElement)
 })
 
-function WallFunc(){
+function ChekCollision(NewX,NewY){
+
+    let TempX = Character.style.left
+    let TempY = Character.style.top
+
+    Character.style.left = NewX + "px"
+    Character.style.top = NewY + "px"
     
     let CharCor = Character.getBoundingClientRect()
-    
     let CollisionDedect = false
     
     Walls.forEach(Wall => {
 
-        const WallCor = {
-            top: Wall.y,
-            bottom: Wall.y + Wall.height,
-            left: Wall.x,
-            right: Wall.x + Wall.width
-        } 
-
+        const WallElement = document.getElementById(Wall.id)
+        const WallCor = WallElement.getBoundingClientRect()
+        
         const Collision = (
             CharCor.top <= WallCor.bottom&&
             CharCor.bottom >= WallCor.top&&
@@ -198,21 +203,19 @@ function WallFunc(){
         )
 
         if (Collision){
-
-            // CollisionDedect = true
-        if(cX + CharCor.width > WallCor.left && cX < WallCor.left){
-            cX = WallCor.left - CharCor.width
-        }else if(cX < WallCor.right && cX + CharCor.width > WallCor.right){
-            cX = WallCor.right
-        }
-        if(cY + CharCor.height > WallCor.top && cY < WallCor.top){
-            cY = WallCor.top - CharCor.height
-        }else if(cY < WallCor.bottom && cY + CharCor.height > WallCor.bottom){
-            cY = WallCor.bottom
-        }
+            CollisionDedect = true
         }
     })
+    Character.style.left = TempX
+    Character.style.top = TempY
+
     return CollisionDedect 
+}
+function ChekCollisionX(NewX) {
+    return ChekCollision(NewX,cY)
+}
+function ChekCollisionY(NewY) {
+    return ChekCollision(cX,NewY)
 }
 
 function Damage(){
