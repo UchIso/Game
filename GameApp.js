@@ -2,26 +2,33 @@
 const Character = document.getElementById("Character")
 
 const Spikes = [
-        { id: 'Spike1', x: 550, y: 100, width: 50, height: 50},
-        { id: 'Spike2', x: 430, y: 520, width: 50, height: 50},
-        { id: 'Spike3', x: 200, y: 305, width: 50, height: 50},
-        { id: 'Spike4', x: 650, y: 650, width: 50, height: 50},
-        { id: 'Spike5', x: 500, y: 505, width: 50, height: 50},
+        { id: 'Spike1', x: 1000, y: 100, width: 50, height: 50},
+        { id: 'Spike2', x: 1500, y: 100, width: 50, height: 50},
+        { id: 'Spike3', x: 1000, y: 600, width: 50, height: 50},
+        { id: 'Spike4', x: 1500, y: 600, width: 50, height: 50},
+        { id: 'Spike5', x: 1250, y: 350, width: 50, height: 50},
 ]
 
 const Walls = [
-    {id: 'Wall1', x: 230, y: 900, width: 1000, height: 50, type: 'horizon'},
-    {id: 'Wall2', x: 650, y: 180, width: 20, height: 200, type: 'vector'},
-    {id: 'Wall3', x: 555, y: 500, width: 200, height: 50, type: 'horizon'},
-    {id: 'Wall4', x: 350, y: 455, width: 50, height: 200, type: 'vector'},
-    {id: 'Wall5', x: 765, y: 390, width: 250, height: 50, type: 'horizon'},
+    {id: 'Wall1', x: 230, y: 1100, width: 1500, height: 100, type: 'horizon'},
+    {id: 'Wall2', x: 1000, y: 150, width: 25, height: 450, type: 'vector'},
+    {id: 'Wall3', x: 1525, y: 150, width: 25, height: 450, type: 'vector'},
+    {id: 'Wall4', x: 1050, y: 625, width: 450, height: 25, type: 'horizon'},
+    {id: 'Wall5', x: 1050, y: 100, width: 450, height: 25, type: 'horizom'},
+    {id: 'Wall6', x: 1262, y: 125, width: 25, height: 500, type: 'vector'},
+    {id: 'Wall7', x: 555, y: 500, width: 200, height: 50, type: 'horizon'},
+    {id: 'Wall8', x: 350, y: 455, width: 50, height: 200, type: 'vector'},
+    {id: 'Wall9', x: 2065, y: 390, width: 250, height: 50, type: 'horizon'},
+    {id: 'Wall10', x: 265, y: 390, width: 250, height: 50, type: 'horizon'},
 ]
 
 Character.textContent = 100
 let cX=0
 let cY=0
-const MoveSpeed = -5
+let MoveSpeed = -5
 const JumpPower = -10
+let Cooldown = false
+
 // let RunSpeed = -10
 
 const Keys = {
@@ -73,14 +80,42 @@ function BlockFunc(Event){
     }
 }
 
+document.addEventListener("keyup",DashFunc)
+function DashFunc(Event){
+    let DashCoolDown = false
+    if(Event.code === "KeyE" && !DashCoolDown){
+        MoveSpeed = -25
+        DashCoolDown = true
+        setTimeout(()=>DashCoolDown=false,1500)
+    }
+}
+
+//! ------------------------------------------------------------------------------------------------ Game Code
+
 function GameLoop(){
     
 // if(MoveSpeed == RunSpeed){
 
-    if(Keys.KeyW) cY += MoveSpeed
-    if(Keys.KeyS) cY -= MoveSpeed
-    if(Keys.KeyA) cX += MoveSpeed
-    if(Keys.KeyD) cX -= MoveSpeed
+    if(Keys.KeyW){
+        cY += MoveSpeed
+        if(WallFunc()) cY -= MoveSpeed
+        // UpdateCharPos()
+    } 
+    if(Keys.KeyS){
+        cY -= MoveSpeed
+        if(WallFunc()) cY += MoveSpeed
+        // UpdateCharPos()
+    }
+    if(Keys.KeyA){
+        cX += MoveSpeed
+        if(WallFunc()) cX -= MoveSpeed
+        // UpdateCharPos()
+    }
+    if(Keys.KeyD){
+        cX -= MoveSpeed
+        if(WallFunc()) cX += MoveSpeed
+        // UpdateCharPos()
+    }
     if(Keys.Space){ 
         cY += JumpPower
         // Cooldown = true
@@ -105,8 +140,6 @@ WallFunc()
 UpdateCharPos()
 requestAnimationFrame(GameLoop)
 }
-
-let Cooldown = false
 
 Spikes.forEach(Spike => {
     const SpikeElement = document.createElement('div');
@@ -145,37 +178,41 @@ Walls.forEach(Wall => {
 function WallFunc(){
     
     let CharCor = Character.getBoundingClientRect()
-
+    
+    let CollisionDedect = false
+    
     Walls.forEach(Wall => {
-    const WallCor = {
-        top: Wall.y,
-        bottom: Wall.y + Wall.height,
-        left: Wall.x,
-        right: Wall.x + Wall.width
-    } 
 
-    const Collision = (
-        CharCor.top <= WallCor.bottom&&
-        CharCor.bottom >= WallCor.top&&
-        CharCor.left <= WallCor.right&&
-        CharCor.right >= WallCor.left
-    )
+        const WallCor = {
+            top: Wall.y,
+            bottom: Wall.y + Wall.height,
+            left: Wall.x,
+            right: Wall.x + Wall.width
+        } 
 
-    if (Collision){
+        const Collision = (
+            CharCor.top <= WallCor.bottom&&
+            CharCor.bottom >= WallCor.top&&
+            CharCor.left <= WallCor.right&&
+            CharCor.right >= WallCor.left
+        )
 
-        if(CharCor.right > WallCor.left && CharCor.left < WallCor.left){
+        if (Collision){
+
+            // CollisionDedect = true
+        if(cX + CharCor.width > WallCor.left && cX < WallCor.left){
             cX = WallCor.left - CharCor.width
-        }else if(CharCor.left < WallCor.right && CharCor.right > WallCor.right){
+        }else if(cX < WallCor.right && cX + CharCor.width > WallCor.right){
             cX = WallCor.right
         }
-        if(CharCor.bottom > WallCor.top && CharCor.top < WallCor.top){
+        if(cY + CharCor.height > WallCor.top && cY < WallCor.top){
             cY = WallCor.top - CharCor.height
-        }else if(CharCor.top < WallCor.bottom && CharCor.bottom > WallCor.bottom){
+        }else if(cY < WallCor.bottom && cY + CharCor.height > WallCor.bottom){
             cY = WallCor.bottom
         }
-    }
-    
+        }
     })
+    return CollisionDedect 
 }
 
 function Damage(){
