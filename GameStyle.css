@@ -29,3 +29,22 @@ body {
     color: #d2dae2;
     font-weight: bold;
 }
+.Wall {
+    position: absolute;
+    background: grey;
+    border: 2px solid #808e9b;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #d2dae2;
+    font-weight: bold;
+}
+        
+.horizon {
+    height: 20px;
+}
+        
+.vertor {
+    width: 20px;
+}

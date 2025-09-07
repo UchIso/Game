@@ -1,34 +1,53 @@
 
 const Character = document.getElementById("Character")
+
+const Spikes = [
+        { id: 'Spike1', x: 550, y: 100, width: 50, height: 50},
+        { id: 'Spike2', x: 430, y: 520, width: 50, height: 50},
+        { id: 'Spike3', x: 200, y: 305, width: 50, height: 50},
+        { id: 'Spike4', x: 650, y: 650, width: 50, height: 50},
+        { id: 'Spike5', x: 500, y: 505, width: 50, height: 50},
+]
+
+const Walls = [
+    {id: 'Wall1', x: 230, y: 900, width: 1000, height: 50, type: 'horizon'},
+    {id: 'Wall2', x: 650, y: 180, width: 20, height: 200, type: 'vector'},
+    {id: 'Wall3', x: 555, y: 500, width: 200, height: 50, type: 'horizon'},
+    {id: 'Wall4', x: 350, y: 455, width: 50, height: 200, type: 'vector'},
+    {id: 'Wall5', x: 765, y: 390, width: 250, height: 50, type: 'horizon'},
+]
+
 Character.textContent = 100
 let cX=0
 let cY=0
-const MoveSpeed = -10
-let RunSpeed = -10
+const MoveSpeed = -5
+const JumpPower = -10
+// let RunSpeed = -10
 
 const Keys = {
-    w: false,
-    s: false,
-    a: false,
-    d: false,
+    KeyW: false,
+    KeyS: false,
+    KeyA: false,
+    KeyD: false,
+    Space: false,
 }
 
 document.addEventListener("keydown",Event => {
     
-    let EventKey = Event.key
+    let EventCode = Event.code
 
-    if(Keys.hasOwnProperty(EventKey)) {
-        Keys[EventKey] = true
+    if(Keys.hasOwnProperty(EventCode)) {
+        Keys[EventCode] = true
         Event.preventDefault()
     }
 })
 
 document.addEventListener("keyup",Event => {
     
-    let EventKey = Event.key
+    let EventCode = Event.code
 
-    if(Keys.hasOwnProperty(EventKey)){
-        Keys[EventKey] = false
+    if(Keys.hasOwnProperty(EventCode)){
+        Keys[EventCode] = false
     }
 })
 
@@ -56,51 +75,108 @@ function BlockFunc(Event){
 
 function GameLoop(){
     
-if(MoveSpeed == RunSpeed){
+// if(MoveSpeed == RunSpeed){
 
-    if(Keys.w) cY += MoveSpeed
-    if(Keys.s) cY -= MoveSpeed
-    if(Keys.a) cX += MoveSpeed
-    if(Keys.d) cX -= MoveSpeed
+    if(Keys.KeyW) cY += MoveSpeed
+    if(Keys.KeyS) cY -= MoveSpeed
+    if(Keys.KeyA) cX += MoveSpeed
+    if(Keys.KeyD) cX -= MoveSpeed
+    if(Keys.Space){ 
+        cY += JumpPower
+        // Cooldown = true
+        setTimeout(()=> {
+            cY -= JumpPower
+            // Cooldown = false
+        },500)
+    }
 
-}
-if(RunSpeed < MoveSpeed){
+// }
+// if(RunSpeed < MoveSpeed){
 
-    if(Keys.w) cY += RunSpeed
-    if(Keys.s) cY -= RunSpeed
-    if(Keys.a) cX += RunSpeed
-    if(Keys.d) cX -= RunSpeed
+//     if(Keys.w) cY += RunSpeed
+//     if(Keys.s) cY -= RunSpeed
+//     if(Keys.a) cX += RunSpeed
+//     if(Keys.d) cX -= RunSpeed
 
-}
+// }
     
 Damage()
+WallFunc()
 UpdateCharPos()
 requestAnimationFrame(GameLoop)
 }
 
 let Cooldown = false
 
-const Spikes = [
-        { id: 'Spike1', x: 550, y: 100, width: 50, height: 50},
-        { id: 'Spike2', x: 430, y: 520, width: 50, height: 50},
-        { id: 'Spike3', x: 200, y: 305, width: 50, height: 50},
-        { id: 'Spike4', x: 650, y: 650, width: 50, height: 50},
-        { id: 'Spike5', x: 500, y: 505, width: 50, height: 50},
-        { id: 'Spike6', x: 600, y: 350, width: 50, height: 50},
-]
-
 Spikes.forEach(Spike => {
-            const SpikeElement = document.createElement('div');
-            SpikeElement.id = Spike.id;
-            SpikeElement.className = `Spike`;
-            SpikeElement.style.left = Spike.x + 'px';
-            SpikeElement.style.top = Spike.y + 'px';
-            SpikeElement.style.width = Spike.width + "px"
-            SpikeElement.style.height = Spike.height + "px"
+    const SpikeElement = document.createElement('div');
+    SpikeElement.id = Spike.id;
+    SpikeElement.className = `Spike`;
+    SpikeElement.style.top = Spike.y + 'px';
+    SpikeElement.style.left = Spike.x + 'px';
+    SpikeElement.style.width = Spike.width + "px"
+    SpikeElement.style.height = Spike.height + "px"
             
-            SpikeElement.textContent = Spike.id;
-            document.body.appendChild(SpikeElement);
+    SpikeElement.textContent = Spike.id;
+    document.body.appendChild(SpikeElement);
 })
+
+Walls.forEach(Wall => {
+    const WallElement = document.createElement("div")
+    WallElement.id = Wall.id
+    WallElement.className = `Wall ${Wall.type}`
+    WallElement.style.top = Wall.y + 'px'
+    WallElement.style.left = Wall.x + 'px'
+    WallElement.style.width = Wall.width + 'px'
+    WallElement.style.height = Wall.height + 'px'
+
+    if(Wall.type === 'horizon'){
+        WallElement.style.width = Wall.width + 'px';
+        WallElement.style.height = Wall.height + 'px';
+    }else{
+        WallElement.style.width = Wall.width + 'px';
+        WallElement.style.height = Wall.height + 'px';
+    }
+    
+    WallElement.textContent = Wall.id
+    document.body.appendChild(WallElement)
+})
+
+function WallFunc(){
+    
+    let CharCor = Character.getBoundingClientRect()
+
+    Walls.forEach(Wall => {
+    const WallCor = {
+        top: Wall.y,
+        bottom: Wall.y + Wall.height,
+        left: Wall.x,
+        right: Wall.x + Wall.width
+    } 
+
+    const Collision = (
+        CharCor.top <= WallCor.bottom&&
+        CharCor.bottom >= WallCor.top&&
+        CharCor.left <= WallCor.right&&
+        CharCor.right >= WallCor.left
+    )
+
+    if (Collision){
+
+        if(CharCor.right > WallCor.left && CharCor.left < WallCor.left){
+            cX = WallCor.left - CharCor.width
+        }else if(CharCor.left < WallCor.right && CharCor.right > WallCor.right){
+            cX = WallCor.right
+        }
+        if(CharCor.bottom > WallCor.top && CharCor.top < WallCor.top){
+            cY = WallCor.top - CharCor.height
+        }else if(CharCor.top < WallCor.bottom && CharCor.bottom > WallCor.bottom){
+            cY = WallCor.bottom
+        }
+    }
+    
+    })
+}
 
 function Damage(){
     
@@ -117,8 +193,8 @@ function Damage(){
     }
 
     const Collision =(
-        CharCor.bottom >= SpikeCor.top&&
         CharCor.top <= SpikeCor.bottom&& 
+        CharCor.bottom >= SpikeCor.top&&
         CharCor.left <= SpikeCor.right&&
         CharCor.right >= SpikeCor.left
     )   
@@ -146,7 +222,6 @@ function Damage(){
         cY += NormalDY * 30
     }
 })
-        
     if (Character.textContent === "0") {
         document.body.style.background = "black"
     }
@@ -156,6 +231,8 @@ document.addEventListener("keypress",Damage)
 document.addEventListener("keyup",Damage)
 
 GameLoop()
+
+//! ------------------------------------------------------------------------------------- Console -----------------------------------------------------------------------------
 
 document.addEventListener("keydown",Cordinate)
 document.addEventListener("keyup",Cordinate)
