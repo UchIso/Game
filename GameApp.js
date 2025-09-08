@@ -2,11 +2,11 @@
 const Character = document.getElementById("Character")
 
 const Spikes = [
-        { id: 'Spike1', x: 1000, y: 100, width: 50, height: 50},
-        { id: 'Spike2', x: 1500, y: 100, width: 50, height: 50},
-        { id: 'Spike3', x: 1000, y: 600, width: 50, height: 50},
-        { id: 'Spike4', x: 1500, y: 600, width: 50, height: 50},
-        { id: 'Spike5', x: 1250, y: 350, width: 50, height: 50},
+    { id: 'Spike1', x: 1000, y: 100, width: 50, height: 50},
+    { id: 'Spike2', x: 1500, y: 100, width: 50, height: 50},
+    { id: 'Spike3', x: 1000, y: 600, width: 50, height: 50},
+    { id: 'Spike4', x: 1500, y: 600, width: 50, height: 50},
+    { id: 'Spike5', x: 1250, y: 350, width: 50, height: 50},
 ]
 
 const Walls = [
@@ -25,6 +25,8 @@ const Walls = [
 const ShadowSkils = [
     {id: 'SadwoSkill', x: 265, y: 290, width: 100, height: 100, type: 'horizon'},
 ]
+
+const TheBigForest = document.getElementById("TheBigForest")
 
 Character.textContent = 100
 let cX=1000
@@ -56,7 +58,8 @@ Spikes.forEach(Spike => {
     SpikeElement.style.height = Spike.height + "px"
             
     SpikeElement.textContent = Spike.id;
-    document.body.appendChild(SpikeElement);
+    // document.body.appendChild(SpikeElement);
+    TheBigForest.appendChild(SpikeElement)
 })
 
 Walls.forEach(Wall => {
@@ -77,7 +80,8 @@ Walls.forEach(Wall => {
     }
     
     WallElement.textContent = Wall.id
-    document.body.appendChild(WallElement)
+    // document.body.appendChild(WallElement)
+    TheBigForest.appendChild(WallElement)
 })
 
 ShadowSkils.forEach(ShadowSkill => {
@@ -98,7 +102,8 @@ ShadowSkils.forEach(ShadowSkill => {
     }
 
     ShadwoSkillElement.textContent = ShadowSkill.id
-    document.body.appendChild(ShadwoSkillElement)
+    // document.body.appendChild(ShadwoSkillElement)
+    TheBigForest.appendChild(ShadwoSkillElement)
 })
 
 //! --------------------------------------------------------------------------------------- Key Codes ------------------------------------------------------------------------------
@@ -211,6 +216,7 @@ function GameLoop(){
     
 Damage()
 ShadowSkillFunc()
+WorldAreaFunc(TheBigForest)
 UpdateCharPos()
 requestAnimationFrame(GameLoop)
 }
@@ -219,7 +225,7 @@ requestAnimationFrame(GameLoop)
 
 
 function ShadowSkillFunc(){
-    let ShadowSkil = false
+    let ShadowCoolDown = false
     let CharCor = Character.getBoundingClientRect()
 
     ShadowSkils.forEach(ShadowSkill => {
@@ -227,25 +233,27 @@ function ShadowSkillFunc(){
         const Shadow = document.getElementById(ShadowSkill.id)
         const ShadowCor = Shadow.getBoundingClientRect()
 
-        if(CharCor.top > ShadowCor.top && CharCor.bottom < ShadowCor.bottom && CharCor.left > ShadowCor.left && CharCor.right < ShadowCor.right){
-            ShadowSkil = true
+        if(CharCor.top >= ShadowCor.top && CharCor.bottom <= ShadowCor.bottom && CharCor.left >= ShadowCor.left && CharCor.right <= ShadowCor.right){
+            ShadowCoolDown = true
+            setTimeout(()=> ShadowCoolDown = false , 5000)
         }        
     })
 
-    if(ShadowSkil){
+    if(ShadowCoolDown){
         Character.style.background = "black"
         Character.style.color = "white"
         Character.style.boxShadow = "0px 0px 10px 5px white"
         Cooldown = true
         MoveSpeed = -20 
-
+        Character.textContent = 100
+        
         document.addEventListener("keydown",Event => {
             if(Event.code === "KeyE" && !DashCoolDown){
                 DashCoolDown = true
             }
         })
         document.addEventListener("keyup",Event => {
-        if(Event.code === "KeyE" && DashCoolDown){
+            if(Event.code === "KeyE" && DashCoolDown){
                 MoveSpeed = -35
                 setTimeout(()=> {
                     DashCoolDown = false
@@ -305,13 +313,8 @@ function Damage(){
     let CharCor = Character.getBoundingClientRect()
     
     Spikes.forEach(Spike => {
-        
-    const SpikeCor = {
-        left: Spike.x,
-        right: Spike.x + Spike.width,
-        top: Spike.y,
-        bottom: Spike.y + Spike.height
-    }
+    let SpikeElement = document.getElementById(Spike.id)
+    const SpikeCor = SpikeElement.getBoundingClientRect()
 
     const Collision =(
         CharCor.top <= SpikeCor.bottom&& 
@@ -339,12 +342,25 @@ function Damage(){
         const NormalDX = HalfDX / Length
         const NormalDY = HalfDY / Length
         
-        cX += NormalDX * 30
-        cY += NormalDY * 30
+        cX += NormalDX * 50
+        cY += NormalDY * 50
     }
 })
     if (Character.textContent === "0") {
         document.body.style.background = "black"
+    }
+}
+
+//?--------------------------------------------------------------------------------------------------------------
+
+function WorldAreaFunc(Area){
+    
+    const CharCor = Character.getBoundingClientRect()
+    const AreaCor = Area.getBoundingClientRect()
+
+    if(CharCor.top >= AreaCor.top && CharCor.bottom <= AreaCor.bottom && CharCor.left >= AreaCor.left && CharCor.right <= AreaCor.right){
+    }else{
+        Character.textContent = 0
     }
 }
 
