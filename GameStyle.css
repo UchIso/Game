@@ -7,6 +7,7 @@ body {
 }
 
 #Character{
+    z-index: 1;
     width: 50px;
     height: 50px;
     background-color: red;
@@ -38,7 +39,19 @@ body {
     color: #d2dae2;
     font-weight: bold;
 }
-        
+
+.ShadowSkill{
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background-color: black;
+    width: 100px;
+    height: 100px;
+    box-shadow: 0px 0px 50px white;
+}
+
 .horizon {
     height: 20px;
 }

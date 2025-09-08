@@ -13,21 +13,26 @@ const Walls = [
     {id: 'Wall1', x: 230, y: 1100, width: 1500, height: 100, type: 'horizon'},
     {id: 'Wall2', x: 1000, y: 150, width: 25, height: 450, type: 'vector'},
     {id: 'Wall3', x: 1525, y: 150, width: 25, height: 450, type: 'vector'},
-    {id: 'Wall4', x: 1050, y: 625, width: 450, height: 25, type: 'horizon'},
+    {id: 'Wall4', x: 1050, y: 625, width: 175, height: 25, type: 'vector'},
     {id: 'Wall5', x: 1050, y: 100, width: 450, height: 25, type: 'horizom'},
-    {id: 'Wall6', x: 1262, y: 125, width: 25, height: 500, type: 'vector'},
-    {id: 'Wall7', x: 555, y: 500, width: 200, height: 50, type: 'horizon'},
-    {id: 'Wall8', x: 350, y: 455, width: 50, height: 200, type: 'vector'},
-    {id: 'Wall9', x: 2065, y: 390, width: 250, height: 50, type: 'horizon'},
+    {id: 'Wall6', x: 1325, y: 625, width: 175, height: 25, type: 'vector'},
+    {id: 'Wall7', x: 850, y: 800, width: 350, height: 50, type: 'horizon'},
+    {id: 'Wall8', x: 850, y: 850, width: 50, height: 250, type: 'vector'},
+    {id: 'Wall9', x: 1150, y: 850, width: 50, height: 180, type: 'horizon'},
     {id: 'Wall10', x: 265, y: 390, width: 250, height: 50, type: 'horizon'},
 ]
 
+const ShadowSkils = [
+    {id: 'SadwoSkill', x: 265, y: 290, width: 100, height: 100, type: 'horizon'},
+]
+
 Character.textContent = 100
-let cX=0
-let cY=0
+let cX=1000
+let cY=1000
 let MoveSpeed = -5
 const JumpPower = -10
 let Cooldown = false
+let DashCoolDown = false
 
 // let RunSpeed = -10
 
@@ -38,6 +43,65 @@ const Keys = {
     KeyD: false,
     Space: false,
 }
+
+//! ---------------------------------------------------------------------------------------------------------- ELEMENT ADD CODES --------------------------------------------------------
+
+Spikes.forEach(Spike => {
+    const SpikeElement = document.createElement('div');
+    SpikeElement.id = Spike.id;
+    SpikeElement.className = `Spike`;
+    SpikeElement.style.top = Spike.y + 'px';
+    SpikeElement.style.left = Spike.x + 'px';
+    SpikeElement.style.width = Spike.width + "px"
+    SpikeElement.style.height = Spike.height + "px"
+            
+    SpikeElement.textContent = Spike.id;
+    document.body.appendChild(SpikeElement);
+})
+
+Walls.forEach(Wall => {
+    const WallElement = document.createElement("div")
+    WallElement.id = Wall.id
+    WallElement.className = `Wall ${Wall.type}`
+    WallElement.style.top = Wall.y + 'px'
+    WallElement.style.left = Wall.x + 'px'
+    WallElement.style.width = Wall.width + 'px'
+    WallElement.style.height = Wall.height + 'px'
+
+    if(Wall.type === 'horizon'){
+        WallElement.style.width = Wall.width + 'px';
+        WallElement.style.height = Wall.height + 'px';
+    }else{
+        WallElement.style.width = Wall.width + 'px';
+        WallElement.style.height = Wall.height + 'px';
+    }
+    
+    WallElement.textContent = Wall.id
+    document.body.appendChild(WallElement)
+})
+
+ShadowSkils.forEach(ShadowSkill => {
+    const ShadwoSkillElement = document.createElement("div")
+    ShadwoSkillElement.id = ShadowSkill.id
+    ShadwoSkillElement.className = `ShadowSkill ${ShadowSkill.type}`
+    ShadwoSkillElement.style.top = ShadowSkill.y + "px"
+    ShadwoSkillElement.style.left = ShadowSkill.x + "px"
+    ShadwoSkillElement.style.width = ShadowSkill.width + "px"
+    ShadwoSkillElement.style.height = ShadowSkill.height + "px"
+
+    if(ShadowSkill.type === 'horizon'){
+        ShadwoSkillElement.style.width = ShadowSkill.width + "px"
+        ShadwoSkillElement.style.height = ShadowSkill.height + "px"
+    }else{
+        ShadwoSkillElement.style.width = ShadowSkill.width + "px"
+        ShadwoSkillElement.style.height = ShadowSkill.height + "px"
+    }
+
+    ShadwoSkillElement.textContent = ShadowSkill.id
+    document.body.appendChild(ShadwoSkillElement)
+})
+
+//! --------------------------------------------------------------------------------------- Key Codes ------------------------------------------------------------------------------
 
 document.addEventListener("keydown",Event => {
     
@@ -80,17 +144,22 @@ function BlockFunc(Event){
     }
 }
 
-document.addEventListener("keyup",DashFunc)
-function DashFunc(Event){
-    let DashCoolDown = false
+document.addEventListener("keydown",Event => {
     if(Event.code === "KeyE" && !DashCoolDown){
-        MoveSpeed = -25
         DashCoolDown = true
-        setTimeout(()=>DashCoolDown=false,1500)
     }
-}
+})
+document.addEventListener("keyup",Event => {
+    if(Event.code === "KeyE" && DashCoolDown){
+        MoveSpeed = -20
+        setTimeout(()=> {
+            DashCoolDown = false
+            MoveSpeed = -5
+        } ,250)
+    }
+})
 
-//! ------------------------------------------------------------------------------------------------ Game Code
+//! ------------------------------------------------------------------------------------------------ Game Code -----------------------------------------------------------------
 
 function GameLoop(){
     
@@ -141,44 +210,60 @@ function GameLoop(){
 // }
     
 Damage()
+ShadowSkillFunc()
 UpdateCharPos()
 requestAnimationFrame(GameLoop)
 }
 
-Spikes.forEach(Spike => {
-    const SpikeElement = document.createElement('div');
-    SpikeElement.id = Spike.id;
-    SpikeElement.className = `Spike`;
-    SpikeElement.style.top = Spike.y + 'px';
-    SpikeElement.style.left = Spike.x + 'px';
-    SpikeElement.style.width = Spike.width + "px"
-    SpikeElement.style.height = Spike.height + "px"
-            
-    SpikeElement.textContent = Spike.id;
-    document.body.appendChild(SpikeElement);
-})
+//?---------------------------------------------------------------------------------------------------------------
 
-Walls.forEach(Wall => {
-    const WallElement = document.createElement("div")
-    WallElement.id = Wall.id
-    WallElement.className = `Wall ${Wall.type}`
-    WallElement.style.top = Wall.y + 'px'
-    WallElement.style.left = Wall.x + 'px'
-    WallElement.style.width = Wall.width + 'px'
-    WallElement.style.height = Wall.height + 'px'
 
-    if(Wall.type === 'horizon'){
-        WallElement.style.width = Wall.width + 'px';
-        WallElement.style.height = Wall.height + 'px';
-    }else{
-        WallElement.style.width = Wall.width + 'px';
-        WallElement.style.height = Wall.height + 'px';
+function ShadowSkillFunc(){
+    let ShadowSkil = false
+    let CharCor = Character.getBoundingClientRect()
+
+    ShadowSkils.forEach(ShadowSkill => {
+
+        const Shadow = document.getElementById(ShadowSkill.id)
+        const ShadowCor = Shadow.getBoundingClientRect()
+
+        if(CharCor.top > ShadowCor.top && CharCor.bottom < ShadowCor.bottom && CharCor.left > ShadowCor.left && CharCor.right < ShadowCor.right){
+            ShadowSkil = true
+        }        
+    })
+
+    if(ShadowSkil){
+        Character.style.background = "black"
+        Character.style.color = "white"
+        Character.style.boxShadow = "0px 0px 10px 5px white"
+        Cooldown = true
+        MoveSpeed = -20 
+
+        document.addEventListener("keydown",Event => {
+            if(Event.code === "KeyE" && !DashCoolDown){
+                DashCoolDown = true
+            }
+        })
+        document.addEventListener("keyup",Event => {
+        if(Event.code === "KeyE" && DashCoolDown){
+                MoveSpeed = -35
+                setTimeout(()=> {
+                    DashCoolDown = false
+                    MoveSpeed = -20
+                } ,250)
+            }
+        })
     }
-    
-    WallElement.textContent = Wall.id
-    document.body.appendChild(WallElement)
-})
+}
 
+//?----------------------------------------------------------------------------------------------------------------
+
+function ChekCollisionX(NewX) {
+    return ChekCollision(NewX,cY)
+}
+function ChekCollisionY(NewY) {
+    return ChekCollision(cX,NewY)
+}
 function ChekCollision(NewX,NewY){
 
     let TempX = Character.style.left
@@ -211,12 +296,8 @@ function ChekCollision(NewX,NewY){
 
     return CollisionDedect 
 }
-function ChekCollisionX(NewX) {
-    return ChekCollision(NewX,cY)
-}
-function ChekCollisionY(NewY) {
-    return ChekCollision(cX,NewY)
-}
+
+//?----------------------------------------------------------------------------------------------------------------
 
 function Damage(){
     
